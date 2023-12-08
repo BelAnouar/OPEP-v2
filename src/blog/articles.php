@@ -28,8 +28,11 @@ if (isset($_GET['theme'])) {
         </div>
         <div class="flex flex-wrap mx-auto justify-between w-[60%]">
             <div>
-                <input type="radio" id="all" name="tags" class="peer hidden" value="all" checked />
-                <label for="all" class="w-full p-1 px-4 border-2 rounded-xl select-none cursor-pointer peer-checked:border-amber-600 peer-checked:text-amber-600">
+                <input type="radio" id="all" name="tags" class="tag peer hidden" value="All" checked />
+                <label for="all" class="w-full p-1 px-4 border-2 rounded-xl select-none cursor-pointer 
+    <?php if ($_GET["tag"] == "All" || empty($_GET["tag"])) {
+        echo 'peer-checked:border-amber-600 peer-checked:text-amber-600';
+    } ?>">
                     All
                 </label>
             </div>
@@ -44,11 +47,15 @@ if (isset($_GET['theme'])) {
                 $tagId = $row['tagId']
             ?>
                 <div>
-                    <input type="radio" id="Tag<?= $tagId ?>" name="tags" class="peer hidden" value="<?= $tagName ?>" />
-                    <label for="Tag<?= $tagId ?>" class="w-full p-1 border-2 rounded-xl select-none cursor-pointer peer-checked:border-amber-600 peer-checked:text-amber-600">
+                    <input type="radio" id="Tag<?= $tagId ?>" name="tags" class="tag peer hidden" value="<?= $tagName ?>" />
+                    <label for="Tag<?= $tagId ?>" class="w-full p-1 border-2 rounded-xl cursor-pointer  <?php if ($_GET["tag"] == "All" || empty($_GET["tag"])) {
+                                                                                                            echo 'peer-checked:border-amber-600 peer-checked:text-amber-600';
+                                                                                                        } ?>">
+
                         <?= $tagName ?>
                     </label>
                 </div>
+
             <?php }
             ?>
         </div>
@@ -62,7 +69,9 @@ if (isset($_GET['theme'])) {
     <div class="flex flex-col justify-between items-center h-[90vh]">
         <div class="w-11/12 mx-auto article">
             <?php
-            $records = $conn->query("SELECT * FROM Articles WHERE themeId = $themeId");
+
+            $records = $conn->query("SELECT * FROM articles WHERE themeId = $themeId");
+
             $rows = $records->num_rows;
 
             $start = 0;
@@ -72,14 +81,33 @@ if (isset($_GET['theme'])) {
                 $start = $page * $rows_per_page;
             }
 
-            $select = "SELECT * FROM articles JOIN users ON articles.userId = users.userId WHERE themeId = ? LIMIT ?,?";
+            $select = "SELECT * FROM articles JOIN users ON articles.userId = users.userId WHERE themeId = ?";
+            $params = ['i', $themeId];
+
+            if (isset($_GET['tag']) && !empty($_GET['tag']) && $_GET['tag'] != "All") {
+                $tagItem = $_GET['tag'];
+                $select .= " AND articleTag = ?";
+                $params[0] .= 's';
+                $params[] = $tagItem;
+            }
+            $select .= " LIMIT ?, ?";
+            $params[0] .= 'ii';
+            $params[] = $start;
+            $params[] = $rows_per_page;
+
             $stmt = $conn->prepare($select);
-            $stmt->bind_param("iii", $themeId, $start, $rows_per_page);
+
+            $types = $params[0];
+            $stmt->bind_param($types, ...array_slice($params, 1));
             $stmt->execute();
             $result = $stmt->get_result();
+
+
+            $rows = $result->num_rows;
             $pages = ceil($rows / $rows_per_page);
             if ($rows > 0) {
                 while ($row = mysqli_fetch_assoc($result)) {
+
                     $articleId = $row['articleId'];
                     $articleTitle = $row['articleTitle'];
                     $articleContent = $row['articleContent'];

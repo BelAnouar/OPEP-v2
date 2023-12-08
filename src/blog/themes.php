@@ -38,8 +38,8 @@ session_start();
                     $themeId = htmlspecialchars($row['themeId']);
                     $themeName = htmlspecialchars($row['themeName']);
                     $sql = "SELECT COUNT(*) AS articles_count 
-                              FROM Articles
-                              JOIN themes ON Articles.themeId = themes.themeId 
+                              FROM articles
+                              JOIN themes ON articles.themeId = themes.themeId 
                               WHERE themes.themeName = '$themeName'
                               GROUP BY themes.themeName;";
                     $stmt = $conn->prepare($sql);

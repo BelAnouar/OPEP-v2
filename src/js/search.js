@@ -34,3 +34,27 @@ function displayDataArticle(idTh, search) {
 
   xhr.send();
 }
+
+
+
+
+const tags = document.querySelectorAll(".tag");
+
+tags.forEach(item => {
+  item.addEventListener("click", (event) => {
+    event.preventDefault();
+    const tagValue = event.target.value;
+    const tagUrl = url.searchParams.get("tag");
+    let newURL;
+  console.log(tagValue);
+    if (tagUrl) {
+      url.searchParams.set("tag", tagValue);
+      newURL = url.href;
+    } else {
+      url.searchParams.append("tag", tagValue);
+      newURL = url.href;
+    }
+
+    window.location.assign(newURL);
+  });
+});
