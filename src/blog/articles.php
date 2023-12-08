@@ -9,6 +9,13 @@ if (isset($_GET['theme'])) {
     $row = mysqli_fetch_assoc($result);
     $themeName = $row['themeName'];
 } else header('Location:themes.php');
+
+
+$tag;
+
+if (isset($_GET["tag"])) {
+    $tag = $_GET["tag"];
+}
 ?>
 
 <!DOCTYPE html>
@@ -30,7 +37,7 @@ if (isset($_GET['theme'])) {
             <div>
                 <input type="radio" id="all" name="tags" class="tag peer hidden" value="All" checked />
                 <label for="all" class="w-full p-1 px-4 border-2 rounded-xl select-none cursor-pointer 
-    <?php if ($_GET["tag"] == "All" || empty($_GET["tag"])) {
+    <?php if ($tag == "All" || empty($tag)) {
         echo 'peer-checked:border-amber-600 peer-checked:text-amber-600';
     } ?>">
                     All
@@ -48,7 +55,7 @@ if (isset($_GET['theme'])) {
             ?>
                 <div>
                     <input type="radio" id="Tag<?= $tagId ?>" name="tags" class="tag peer hidden" value="<?= $tagName ?>" />
-                    <label for="Tag<?= $tagId ?>" class="w-full p-1 border-2 rounded-xl cursor-pointer  <?php if ($_GET["tag"] == "All" || empty($_GET["tag"])) {
+                    <label for="Tag<?= $tagId ?>" class="w-full p-1 border-2 rounded-xl cursor-pointer  <?php if ($tag == $tagName) {
                                                                                                             echo 'peer-checked:border-amber-600 peer-checked:text-amber-600';
                                                                                                         } ?>">
 
